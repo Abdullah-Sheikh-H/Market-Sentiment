@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/MarketSentiment.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.7;\n\ncontract MarketSentiment {\n    address public owner;\n    string[] public tickersArray;\n\n    constructor() {\n        owner = msg.sender;\n    }\n\n    struct ticker {\n        bool exists;\n        uint256 up;\n        uint256 down;\n        mapping(address => bool) Voters;\n    }\n\n    event tickerUpdated(uint256 up, uint256 dowm, address voter, string ticker);\n\n    mapping(string => ticker) private Tickers;\n\n    function addTicker(string memory _ticker) public {\n        require(msg.sender == owner, \"Only Owner\");\n        ticker storage newTicker = Tickers[_ticker];\n        newTicker.exists = true;\n        tickersArray.push(_ticker);\n    }\n\n    function vote(string memory _ticker, bool _vote) public {\n        require(Tickers[_ticker].exists, \"Cant Vote on this Coin\");\n        require(!Tickers[_ticker].Voters[msg.sender], \"Already Voted\");\n\n        ticker storage t = Tickers[_ticker];\n        t.Voters[msg.sender] = true;\n        if (_vote) {\n            t.up++;\n        } else {\n            t.down++;\n        }\n\n        emit tickerUpdated(t.up, t.down, msg.sender, _ticker);\n    }\n\n    function getVotes(string memory _ticker)\n        public\n        view\n        returns (uint256 up, uint256 down)\n    {\n        require(Tickers[_ticker].exists, \"Cant Vote on this Coin\");\n        ticker storage t = Tickers[_ticker];\n        return (t.up, t.down);\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
